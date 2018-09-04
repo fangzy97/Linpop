@@ -47,7 +47,7 @@ void get_message()
 gboolean do_connect() //连接多人聊天服务器
 {
 	GtkTextIter iter;
-	gint slen;gint slen;
+	gint slen;
 	sd = socket(AF_INET,SOCK_STREAM,0);//创建
 	if (sd < 0)
 	{
@@ -56,10 +56,9 @@ gboolean do_connect() //连接多人聊天服务器
 		return FALSE;
 	}
 	
-	memset(s_in, 0, sizeof(s_in));
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons(OURPORT);
-	s_in.sin_addr.s_addr = inet_addr("192.168.153.134");
+	s_in.sin_addr.s_addr = inet_addr("127.0.0.1");
 	slen = sizeof(struct sockaddr_in);
 	
 	if (connect(sd, (struct sockaddr*)&s_in, slen) < 0)

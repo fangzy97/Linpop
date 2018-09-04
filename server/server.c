@@ -51,6 +51,7 @@ void do_server(gpointer id)
 		sprintf(temp, "%s", user[GPOINTER_TO_INT(id)].buf);
 		strcat(tobuf, " ");
 		strcat(tobuf, temp);
+		strcpy(temp, tobuf);
 
 		if (strcmp(target, "ALL") == 0)
 		{
@@ -71,7 +72,6 @@ void do_server(gpointer id)
 				if (user[i].in_use && strcmp(target, user[i].name) == 0)
 				{
 					write(user[i].sd, tobuf, MAX_LEN);
-					write(user[GPOINTER_TO_INT(id)].sd, tobuf, MAX_LEN);
 					g_print("%s", tobuf);
 					flag = 1;
 					break;
@@ -81,6 +81,10 @@ void do_server(gpointer id)
 			{
 				sprintf(tobuf, "Target offline\n");
 				write(user[GPOINTER_TO_INT(id)].sd, tobuf, MAX_LEN);
+			}
+			else
+			{
+				write(user[GPOINTER_TO_INT(id)].sd, temp, MAX_LEN);
 			}
 		}
 		
