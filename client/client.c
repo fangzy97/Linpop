@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define OURPORT 8088
 #define MAX_LEN 2048
@@ -16,7 +18,7 @@ struct sockaddr_in s_in; //套接字数据结构
 gchar username[64]; //用户名
 gchar target[64];
 gchar buf[MAX_LEN]; //写缓冲区
-gchar get_buf[MAX_LEN + 24]; //读缓冲区
+gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
 
 static GtkWidget *text;
@@ -25,6 +27,48 @@ static GtkWidget *message_entry; //显示输入消息的单行录入控件
 static GtkWidget *name_entry; //输入用户名的单行录入控件
 static GtkWidget *login_button; //登录按钮
 static GtkWidget *target_entry;
+
+void sys_err(const char *ptr,int num)
+{
+    perror(ptr);
+    exit(num);
+}
+
+void get_file(char* src)
+{
+	int fd = open(src, O_RDONLY);
+	char buf[MAX_LEN];
+	if (fd < 0)
+	{
+		sys_err("open", -3);
+	}
+
+	while (1)
+	{
+		int len = read(fd, buf, sizeof(buf));
+		
+		if (len == 0) break;	//读取出错
+
+		int _tmp = 0;
+		while (1)
+		{
+			int ret = write(sd, buf + _tmp, len - _tmp);
+			if (ret > 0)
+			{
+				_tmp += ret;
+			}
+			if (_tmp == ret)
+			{
+				break;
+			}
+			if (ret < 0)
+			{
+				perror("write");
+				break;
+			}
+		}
+	}
+}
 
 void get_message()
 {
@@ -56,9 +100,10 @@ gboolean do_connect() //连接多人聊天服务器
 		return FALSE;
 	}
 	
+	memset(&s_in, 0, sizeof(s_in));
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons(OURPORT);
-	s_in.sin_addr.s_addr = inet_addr("192.168.43.74");
+	s_in.sin_addr.s_addr = inet_addr("192.168.153.135");
 	slen = sizeof(struct sockaddr_in);
 	
 	if (connect(sd, (struct sockaddr*)&s_in, slen) < 0)

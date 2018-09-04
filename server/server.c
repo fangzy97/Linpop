@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <errno.h>
 #include <netinet/in.h>
 
 #define OURPORT 8088
@@ -28,6 +29,25 @@ typedef struct _client client;
 
 //用户数据信息
 client user[MAX_USERS];
+
+void sys_err(const char* ptr, int num)
+{
+	perror(ptr);
+	exit(num);
+}
+
+void send_file(char* src)
+{
+	char buf[MAX_LEN];
+	memset(buf, 0, sizeof(buf));
+	
+    int fd = open(src,O_RDONLY);
+	if (fd < 0)
+	{
+		
+	}
+
+}
 
 //定义服务线程
 void do_server(gpointer id)
@@ -111,6 +131,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	memset(&sin, 0, sizeof(sin));
 	sin = g_new(struct sockaddr_in, 1);
 	sin->sin_family = AF_INET;
 	sin->sin_port = htons(OURPORT);
