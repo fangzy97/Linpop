@@ -40,7 +40,7 @@ void send_file(char* src)
 {
 	char buf[MAX_LEN];
 	memset(buf, 0, sizeof(buf));
-	
+
     int fd = open(src,O_RDONLY);
 	if (fd < 0)
 	{
@@ -49,65 +49,104 @@ void send_file(char* src)
 
 }
 
+char* getTarget(char* str)
+{
+	char* result;
+	result = (char*)malloc(sizeof(char) * 64);
+	memset(result, 0, sizeof(result));
+
+	int num = 0;
+	for (int i = 2; i < strlen(str); i++)
+	{
+		if (str[i] == ';') break;
+
+		result[num++] = str[i];
+	}
+
+	return result;
+}
+
+char* getMessage(char* str)
+{
+	char* result;
+	result = (char*)malloc(sizeof(char) * MAX_LEN);
+	memset(result, 0, sizeof(result));
+
+	int flag = 0, num = 0;
+	for (int i = 2; i < strlen(str); i++)
+	{
+		if (str[i] == ';' && flag == 0) 
+		{
+			flag = 1;
+			continue;
+		}
+
+		if (flag == 1)
+		{
+			result[num++] = str[i];
+		}
+	}
+
+	return result;
+}
+
 //定义服务线程
 void do_server(gpointer id)
 {
+	char mod;
 	char tobuf[MAX_LEN];
 	char target[64];
 	char temp[MAX_LEN];
 	int flag = 0;
 
 	while (read(user[GPOINTER_TO_INT(id)].sd, user[GPOINTER_TO_INT(id)].buf, MAX_LEN) != -1)
-	{
-		if (strcmp(user[GPOINTER_TO_INT(id)].buf, "CONNECT_CLOSE") == 0)
-			break;
-		
+	{	
 		memset(tobuf, 0, sizeof(tobuf));
 		memset(target, 0, sizeof(target));
 		memset(temp, 0, sizeof(temp));
 
-		sprintf(tobuf, "%s", user[GPOINTER_TO_INT(id)].name);
-		sprintf(target, "%s", user[GPOINTER_TO_INT(id)].target);
-		sprintf(temp, "%s", user[GPOINTER_TO_INT(id)].buf);
-		strcat(tobuf, " ");
-		strcat(tobuf, temp);
-		strcpy(temp, tobuf);
-
-		if (strcmp(target, "ALL") == 0)
+		mod = user[GPOINTER_TO_INT(id)].buf[0];
+		if (mod == '0')
 		{
-			for (int i = 0; i < MAX_USERS; i++)
-			{
-				if (user[i].in_use)
-				{
-					write(user[i].sd, tobuf, MAX_LEN);
-					g_print("%s", tobuf);
-				}
-			}
+			printf("%s offline\n", user[GPOINTER_TO_INT(id)].name);
+			break;
 		}
-		else
+		else if (mod == '1')
 		{
-			flag = 0;
-			for (int i = 0; i < MAX_USERS; i++)
+			strcpy(tobuf, user[GPOINTER_TO_INT(id)].name);
+			strcpy(target, getTarget(user[GPOINTER_TO_INT(id)].buf));
+			strcpy(temp, getMessage(user[GPOINTER_TO_INT(id)].buf));
+			strcat(tobuf, ": ");
+			strcat(tobuf, temp);
+			strcat(tobuf, "\n");
+
+			if (strcmp(target, "ALL") == 0)
 			{
-				if (user[i].in_use && strcmp(target, user[i].name) == 0)
+				for (int i = 0; i < MAX_USERS; i++)
 				{
-					write(user[i].sd, tobuf, MAX_LEN);
-					g_print("%s", tobuf);
-					flag = 1;
-					break;
+					if (user[i].in_use)
+					{
+						write(user[i].sd, tobuf, MAX_LEN);
+						printf("%s\n", tobuf);
+					}
 				}
-			}
-			if (flag == 0)
-			{
-				sprintf(tobuf, "Target offline\n");
-				write(user[GPOINTER_TO_INT(id)].sd, tobuf, MAX_LEN);
 			}
 			else
 			{
-				write(user[GPOINTER_TO_INT(id)].sd, temp, MAX_LEN);
+				for (int i = 0; i < MAX_USERS; i++)
+				{
+					if (user[i].in_use && (strcmp(user[i].name, target) == 0 || i == GPOINTER_TO_INT(id)))
+					{
+						write(user[i].sd, tobuf, MAX_LEN);
+						printf("%s\n", tobuf);
+					}
+				}
 			}
 		}
-		
+		else if (mod == '2')
+		{
+			printf("function 2\n");
+		}
 	}
 	user[GPOINTER_TO_INT(id)].in_use = FALSE;
 	close(user[GPOINTER_TO_INT(id)].sd);
@@ -149,7 +188,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	for(int i = 0; i < MAX_USERS; i++)
+	for(i = 0; i < MAX_USERS; i++)
 		user[i].in_use = FALSE;
 
 	flags = fcntl(sd, F_GETFL);
@@ -178,20 +217,9 @@ int main(int argc, char* argv[])
 				user[count].sd = newsd;
 				user[count].in_use = TRUE;
 
-				gchar temp[128];
+				gchar temp[64];
 				memset(temp, 0, sizeof(temp));
-				read(newsd, temp, 128);
-
-				int a = 0, b = 0, flag = 0;
-				for (int i = 0; i < strlen(temp); i++)
-				{
-					if (temp[i] == ';')
-						flag = 1;
-					else if (flag == 0)
-						user[count].name[a++] = temp[i];
-					else
-						user[count].target[b++] = temp[i];
-				}
+				read(newsd, user[count].name, 64);
 				
 				g_thread_new(user[count].name, (GThreadFunc)do_server, (gpointer)count);
 				count++;

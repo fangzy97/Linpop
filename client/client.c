@@ -16,7 +16,7 @@
 gint sd; //套接字句柄
 struct sockaddr_in s_in; //套接字数据结构
 gchar username[64]; //用户名
-gchar target[64];
+//gchar target[64];
 gchar buf[MAX_LEN]; //写缓冲区
 gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
@@ -119,12 +119,10 @@ gboolean do_connect() //连接多人聊天服务器
 		gtk_text_buffer_get_end_iter(buffer, &iter);
 		gtk_text_buffer_insert(buffer, &iter, "\n成功与服务器连接....\n", -1);
 		
-		gchar temp[128];
+		gchar temp[64];
 		memset(temp, 0, sizeof(temp));
 		strcpy(temp, username);
-		strcat(temp, ";");
-		strcat(temp, target);
-		write(sd, temp, 128);//向服务器发送用户名
+		write(sd, temp, 64);//向服务器发送用户名
 
 		isconnected = TRUE;
 		return TRUE;
@@ -134,7 +132,7 @@ gboolean do_connect() //连接多人聊天服务器
 void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	sprintf(username, "guest");
-	sprintf(target, "ALL");
+
 	if(do_connect() == TRUE)
 	{
 		gtk_widget_set_sensitive(login_button, FALSE);
@@ -152,15 +150,15 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	name = gtk_entry_get_text(GTK_ENTRY(name_entry));
 	sprintf(username, "%s", name);
 
-	tar = gtk_entry_get_text(GTK_ENTRY(target_entry));
-	if (strcmp(tar, "") == 0)
-	{
-		sprintf(target, "%s", "ALL");
-	}
-	else
-	{
-		sprintf(target, "%s", tar);
-	}
+	//tar = gtk_entry_get_text(GTK_ENTRY(target_entry));
+	// if (strcmp(tar, "") == 0)
+	// {
+	// 	sprintf(target, "%s", "ALL");
+	// }
+	// else
+	// {
+	// 	sprintf(target, "%s", tar);
+	// }
 
 	if(do_connect())
 	{
@@ -194,14 +192,14 @@ void create_win()
 	name_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox), name_entry, TRUE, TRUE, 5);
 	
-	hbox1 = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox1, TRUE, TRUE, 5);
+	// hbox1 = gtk_hbox_new(FALSE, 0);
+	// gtk_box_pack_start(GTK_BOX(vbox), hbox1, TRUE, TRUE, 5);
 
-	target_name = gtk_label_new("聊天目标：");
-	gtk_box_pack_start(GTK_BOX(hbox1), target_name, TRUE, TRUE, 5);
+	// target_name = gtk_label_new("聊天目标：");
+	// gtk_box_pack_start(GTK_BOX(hbox1), target_name, TRUE, TRUE, 5);
 
-	target_entry = gtk_entry_new();
-	gtk_box_pack_start(GTK_BOX(hbox1), target_entry, TRUE, TRUE, 5);
+	// target_entry = gtk_entry_new();
+	// gtk_box_pack_start(GTK_BOX(hbox1), target_entry, TRUE, TRUE, 5);
 
 	button = gtk_button_new_from_stock(GTK_STOCK_OK);
 	g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_button_clicked), win);
@@ -213,9 +211,18 @@ void create_win()
 void on_send (GtkButton* button, gpointer data)
 {
 	const char* message;
-	if(isconnected==FALSE) return;
+	const char* target;
+	if(isconnected == FALSE) return;
+	
 	message = gtk_entry_get_text(GTK_ENTRY(message_entry));
-	sprintf(buf, "%s\n", message);
+	target = gtk_entry_get_text(GTK_ENTRY(target_entry));
+
+	memset(buf, 0, sizeof(buf));
+	strcpy(buf, "1:");
+	strcat(buf, target);
+	strcat(buf, ";");
+	strcat(buf, message);
+
 	write(sd, buf, MAX_LEN);//发送
 	gtk_entry_set_text(GTK_ENTRY(message_entry), "");
 }
@@ -227,7 +234,7 @@ void on_login(GtkWidget *button, gpointer data)
 
 void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
 {
-	sprintf(buf, "CONNECT_CLOSE\n");
+	strcpy(buf, "0:CONNECT_CLOSE");
 	write(sd, buf, MAX_LEN);
 	close(sd);//关闭
 	gtk_main_quit();
@@ -236,7 +243,7 @@ void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
 int main (int argc, char* argv[])
 {
 	GtkWidget *window;
-	GtkWidget *vbox, *hbox, *button, *label, *view;
+	GtkWidget *vbox, *hbox, *hbox1, *button, *label, *label1, *view;
 
 	gtk_init(&argc,&argv);
 
@@ -262,6 +269,15 @@ int main (int argc, char* argv[])
 	gtk_box_pack_start(GTK_BOX(vbox),view,TRUE,TRUE,5);
 	gtk_container_add(GTK_CONTAINER(view),text);
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
+
+	hbox1 = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 5);
+
+	label1 = gtk_label_new("发送目标：");
+	gtk_box_pack_start(GTK_BOX(hbox1), label1, FALSE, FALSE, 5);
+
+	target_entry = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox1), target_entry, FALSE, FALSE, 5);
 
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
