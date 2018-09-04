@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 
 #define OURPORT 8088
-#define MAX_LEN 2000
+#define MAX_LEN 2048
 
 gint sd; //套接字句柄
 struct sockaddr_in s_in; //套接字数据结构
@@ -58,7 +58,7 @@ gboolean do_connect() //连接多人聊天服务器
 	
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons(OURPORT);
-	s_in.sin_addr.s_addr = inet_addr("127.0.0.1");
+	s_in.sin_addr.s_addr = inet_addr("192.168.43.74");
 	slen = sizeof(struct sockaddr_in);
 	
 	if (connect(sd, (struct sockaddr*)&s_in, slen) < 0)

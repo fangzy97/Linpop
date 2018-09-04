@@ -14,7 +14,7 @@
 
 #define OURPORT 8088
 #define MAX_USERS 10 
-#define MAX_LEN 2000
+#define MAX_LEN 2048
 
 struct _client 
 {
