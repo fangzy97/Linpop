@@ -39,7 +39,7 @@ void sys_err(const char* ptr, int num)
 
 void get_file(char* buf)
 {
-	int filefd = open("file.txt", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	int filefd = open("file.txt", O_WRONLY | O_CREAT | O_APPEND, 0777);
 	write(filefd, buf, strlen(buf));
 	close(filefd);
 }

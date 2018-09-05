@@ -22,5 +22,11 @@ void File_button_clicked (GtkWidget *button,gpointer userdata);
 void download_file(gchar buf[]);
 void start_page();
 int create_main ();
+void calc_button_clicked ( GtkWidget *button1 , gpointer userdata);
+void personal_information_button_clicked ( GtkWidget *button , gpointer userdata);
+void cale_button_clicked ( GtkWidget *button1 , gpointer userdata);
+void File_button_clicked (GtkWidget *button,gpointer userdata);
+GtkWidget *create_leftbox();
+GtkWidget *create_rightbox();
 
 #endif

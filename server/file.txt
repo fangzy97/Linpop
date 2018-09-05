@@ -6,15 +6,18 @@
 gint sd; //套接字句柄
 struct sockaddr_in s_in; //套接字数据结构
 gchar username[64]; //用户名
+gchar password[64]; //密码
 gchar buf[MAX_LEN]; //写缓冲区
 gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
 
+static GtkWidget *main_window;
 static GtkWidget *text;
 static GtkWidget *path_text;
 static GtkTextBuffer *buffer; //显示对话内容的文本显示缓冲区
 static GtkWidget *message_entry; //显示输入消息的单行录入控件
 static GtkWidget *name_entry; //输入用户名的单行录入控件
+static GtkWidget *password_entry; //输入用户名的单行录入控件
 static GtkWidget *login_button; //登录按钮
 static GtkWidget *target_entry;
 
@@ -73,10 +76,7 @@ gboolean do_connect() //连接多人聊天服务器
 	memset(&s_in, 0, sizeof(s_in));
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons(OURPORT);
-	s_in.sin_addr.s_addr = inet_addr("192.168.153.135");
+	s_in.sin_addr.s_addr = inet_addr("192.168.153.136");
 	slen = sizeof(struct sockaddr_in);
 	
-	if (connect(sd, (struct sockaddr*)&s_in, slen) < 0)
-	{
-		gtk_text_buffer_get_end_iter(buffer, &iter);
-		gtk_text_buffer_insert(buffer, &iter, "连接服务器时出错！\
+	if (connect(sd, (struct sockaddr*)&s_in, 
