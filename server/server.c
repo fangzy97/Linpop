@@ -22,6 +22,7 @@ struct _client
 	gint sd;
 	gboolean in_use;
 	gchar name[64];
+	gchar password[64];
 	gchar buf[MAX_LEN];
 	gchar target[64];
 };
@@ -172,6 +173,34 @@ void do_server(gpointer id)
 	close(user[GPOINTER_TO_INT(id)].sd);
 }
 
+void getUserName(char *buf, int id)
+{
+	int num = 0;
+	for (int i = 0; i < strlen(buf); i++)
+	{
+		if (buf[i] == ';') break;
+
+		user[id].name[num++] = buf[i];
+	}
+}
+
+void getPassword(char *buf, int id)
+{
+	int num = 0, flag = 0;
+	for (int i = 0; i < strlen(buf); i++)
+	{
+		if (buf[i] == ';' && flag == 0)
+		{
+			flag = 1;
+			continue;
+		}
+		if (flag == 1)
+		{
+			user[id].password[num++] = buf[i];
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	gint sd, newsd;
@@ -237,9 +266,12 @@ int main(int argc, char* argv[])
 				user[count].sd = newsd;
 				user[count].in_use = TRUE;
 
-				gchar temp[64];
+				gchar temp[128];
 				memset(temp, 0, sizeof(temp));
-				read(newsd, user[count].name, 64);
+				read(newsd, temp, 128);
+
+				getUserName(temp, count);
+				getPassword(temp, count);
 				
 				g_thread_new(user[count].name, (GThreadFunc)do_server, (gpointer)count);
 				count++;

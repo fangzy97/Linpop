@@ -6,6 +6,7 @@
 gint sd; //套接字句柄
 struct sockaddr_in s_in; //套接字数据结构
 gchar username[64]; //用户名
+gchar password[64]; //密码
 gchar buf[MAX_LEN]; //写缓冲区
 gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
@@ -91,9 +92,12 @@ gboolean do_connect() //连接多人聊天服务器
 		gtk_text_buffer_get_end_iter(buffer, &iter);
 		gtk_text_buffer_insert(buffer, &iter, "\n成功与服务器连接....\n", -1);
 		
-		gchar temp[64];
+		gchar temp[128];
 		memset(temp, 0, sizeof(temp));
 		strcpy(temp, username);
+		strcat(temp, ";");
+		strcat(temp, password);
+
 		write(sd, temp, 64);//向服务器发送用户名
 
 		isconnected = TRUE;
@@ -104,6 +108,7 @@ gboolean do_connect() //连接多人聊天服务器
 void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	sprintf(username, "guest");
+	sprintf(password, " ");
 
 	if(do_connect() == TRUE)
 	{
@@ -116,10 +121,13 @@ void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 void on_button_clicked(GtkButton *button, gpointer data)
 {
 	const gchar* name;
-	const gchar* tar;
+	const gchar* pw;
 
 	name = gtk_entry_get_text(GTK_ENTRY(name_entry));
 	sprintf(username, "%s", name);
+
+	pw = gtk_entry_get_text(GTK_ENTRY(password_entry));
+	sprintf(password, "%s", pw);
 
 	gtk_widget_set_visible(main_window, TRUE);
 
@@ -236,6 +244,7 @@ void create_win(gpointer data)
 
 	password_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox2), password_entry, TRUE, TRUE, 5);
+	gtk_entry_set_visibility(GTK_ENTRY(password_entry),FALSE);
 
 	button = gtk_button_new_from_stock(GTK_STOCK_OK);
 	g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_button_clicked), win);
