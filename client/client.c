@@ -1,14 +1,5 @@
 /* client.c */
-#include <gtk/gtk.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "function.h"
 
 #define OURPORT 8088
 #define MAX_LEN 2048
@@ -28,6 +19,8 @@ static GtkWidget *name_entry; //输入用户名的单行录入控件
 static GtkWidget *login_button; //登录按钮
 static GtkWidget *target_entry;
 static GtkWidget *path_entry;
+
+char *file_path;
 
 void sys_err(const char *ptr,int num)
 {
@@ -169,6 +162,11 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	gtk_widget_destroy(data);
 }
 
+void on_send_file_click()
+{
+	printf("%s\n", file_path);
+}
+
 void create_win()
 {
 	GtkWidget *win, *vbox, *hbox, *hbox1;
@@ -243,6 +241,8 @@ void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
 
 int main (int argc, char* argv[])
 {
+	
+
 	GtkWidget *window;
 	GtkWidget *vbox, *hbox, *hbox1, *hbox2, *button, *button2, *label, *label1, *label2, *view;
 
@@ -303,12 +303,21 @@ int main (int argc, char* argv[])
 	gtk_box_pack_start(GTK_BOX(hbox2), label2, FALSE, FALSE, 5);
 
 	// path_entry不动
-	path_entry = gtk_entry_new();
-	gtk_box_pack_start(GTK_BOX(hbox2), path_entry, FALSE, FALSE, 5);
+	// path_entry = gtk_entry_new();
+	// gtk_box_pack_start(GTK_BOX(hbox2), path_entry, FALSE, FALSE, 5);
+	GtkWidget *button3;
+	button3 = gtk_button_new_with_label("选择文件");
+	gtk_box_pack_start(GTK_BOX(hbox2), button3, FALSE, FALSE, 5);
+	g_signal_connect_swapped(G_OBJECT(button3), "clicked", G_CALLBACK(File_button_clicked), NULL);
 
 	// button2不动
 	button2 = gtk_button_new_with_label("发送文件");
 	gtk_box_pack_start(GTK_BOX(hbox2), button2, FALSE, FALSE, 5);
+	g_signal_connect_swapped(G_OBJECT(button2), "clicked", G_CALLBACK(on_send_file_click), NULL);
+
+	//GtkWidget *file_text = gtk_scrolled_window_new(NULL,NULL);
+
+	// 这里显示文件目录（未做） 怎么接受另一个函数结束信号
 
 	gtk_widget_show_all(window);
 
