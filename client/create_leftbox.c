@@ -1,7 +1,8 @@
-#include <gtk/gtk.h>
-#include <stdio.h>
+#include "function.h"
+
 GtkWidget *create_leftbox()
 {
+    g_print("-------------------------------------------------------------------------\n");
 
     GtkWidget *vbox = gtk_vbox_new(TRUE, 5);
     //gtk_container_add(GTK_CONTAINER(window), vbox);
@@ -10,7 +11,8 @@ GtkWidget *create_leftbox()
     GtkWidget *image = gtk_image_new_from_file("0.jpg");//add the picture
     //gtk_container_add(GTK_CONTAINER(hbox1), image);
     gtk_box_pack_start(GTK_BOX(hbox1), image,FALSE,FALSE,5);
-    GtkWidget *label=gtk_label_new("username");//replace with the nickname
+
+    GtkWidget *label=gtk_label_new(username);//replace with the nickname
     //gtk_container_add(GTK_CONTAINER(hbox1), label);
 
     //

@@ -14,7 +14,7 @@ gboolean isconnected = FALSE; //定义逻辑值表示是否连接
 static GtkWidget *main_window;
 static GtkWidget *text;
 static GtkWidget *path_text;
-static GtkTextBuffer *buffer; //显示对话内容的文本显示缓冲区
+//static GtkTextBuffer *buffer; //显示对话内容的文本显示缓冲区
 static GtkWidget *message_entry; //显示输入消息的单行录入控件
 static GtkWidget *name_entry; //输入用户名的单行录入控件
 static GtkWidget *password_entry; //输入用户名的单行录入控件
@@ -68,8 +68,9 @@ gboolean do_connect() //连接多人聊天服务器
 	sd = socket(AF_INET,SOCK_STREAM,0);//创建
 	if (sd < 0)
 	{
-		gtk_text_buffer_get_end_iter(buffer, &iter);
-		gtk_text_buffer_insert(buffer, &iter, "打开套接字时出错！\n", -1);
+		printf("打开套接字时出错！\n");
+		// gtk_text_buffer_get_end_iter(buffer, &iter);
+		// gtk_text_buffer_insert(buffer, &iter, "打开套接字时出错！\n", -1);
 		return FALSE;
 	}
 	
@@ -81,16 +82,18 @@ gboolean do_connect() //连接多人聊天服务器
 	
 	if (connect(sd, (struct sockaddr*)&s_in, slen) < 0)
 	{
-		gtk_text_buffer_get_end_iter(buffer, &iter);
-		gtk_text_buffer_insert(buffer, &iter, "连接服务器时出错！\n",-1);
+		printf("连接服务器时出错！\n");
+		// gtk_text_buffer_get_end_iter(buffer, &iter);
+		// gtk_text_buffer_insert(buffer, &iter, "连接服务器时出错！\n",-1);
 		return FALSE;
 	}
 	else
 	{
-		gtk_text_buffer_get_end_iter(buffer, &iter);
-		gtk_text_buffer_insert(buffer, &iter, username, -1);
-		gtk_text_buffer_get_end_iter(buffer, &iter);
-		gtk_text_buffer_insert(buffer, &iter, "\n成功与服务器连接....\n", -1);
+		// gtk_text_buffer_get_end_iter(buffer, &iter);
+		// gtk_text_buffer_insert(buffer, &iter, username, -1);
+		// gtk_text_buffer_get_end_iter(buffer, &iter);
+		// gtk_text_buffer_insert(buffer, &iter, "\n成功与服务器连接....\n", -1);
+		printf("成功与服务器连接....\n");
 		
 		gchar temp[128];
 		memset(temp, 0, sizeof(temp));
@@ -129,15 +132,14 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	pw = gtk_entry_get_text(GTK_ENTRY(password_entry));
 	sprintf(password, "%s", pw);
 
-	gtk_widget_set_visible(main_window, TRUE);
-
 	if(do_connect())
 	{
 		g_thread_new(username, (GThreadFunc)get_message, NULL);
 	}
 	gtk_widget_destroy(data);
 
-	gtk_widget_set_visible(main_window, TRUE);
+	// 启动主界面
+	create_main();
 }
 
 void get_file()
@@ -276,8 +278,6 @@ void on_send (GtkButton* button, gpointer data)
 void on_login(GtkWidget *button, gpointer data)
 { 
 	create_win(data);
-	create_main();
-	gtk_widget_set_visible(main_window, FALSE);
 }
 
 void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
