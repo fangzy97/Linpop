@@ -6,7 +6,6 @@
 gint sd; //套接字句柄
 struct sockaddr_in s_in; //套接字数据结构
 gchar username[64]; //用户名
-//gchar target[64];
 gchar buf[MAX_LEN]; //写缓冲区
 gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
@@ -29,79 +28,33 @@ void sys_err(const char *ptr,int num)
     exit(num);
 }
 
-void get_file()
-{
-	int fd = open(file_path, O_RDONLY);
-	char buf[MAX_LEN + 10];
-	if (fd < 0)
-	{
-		sys_err("open", -3);
-	}
-
-	int tmp = 0;
-	while (1)
-	{
-		memset(buf, 0, sizeof(buf));
-		int len = read(fd, buf, sizeof(char) * MAX_LEN);
-
-		if (len == 0) break;	//读取出错
-
-		if (len > 0)
-		{
-			tmp += len;
-		}
-
-		char *temp = NULL;
-		temp = (char*)malloc(sizeof(char) * MAX_LEN + 10);
-		memset(temp, 0, sizeof(temp));
-
-		strcpy(temp, "2:");
-		strcat(temp, buf);
-		len += 2;
-
-		// 考虑一次没读完
-		int _tmp = 0;
-		while (1)
-		{
-			int ret = write(sd, temp + _tmp, len - _tmp);
-			if (ret > 0)
-			{
-				_tmp += ret;
-			}
-			if (_tmp == ret)
-			{
-				break;
-			}
-			if (ret < 0)
-			{
-				perror("write");
-				break;
-			}
-		}
-
-		if (temp != NULL)
-		{
-			free(temp);
-			temp = NULL;
-		}
-	}
-}
-
 void get_message()
 {
 	GtkTextIter iter;
 	gchar get_buf[MAX_LEN];
 	gchar buf[MAX_LEN];
+	
+	char mod;
 
 	while(read(sd, buf, MAX_LEN) != -1) //只要读取数据成功就循环执行
 	{
-		g_print("%s", buf);
-		sprintf(get_buf,"%s",buf);
-		gdk_threads_enter(); //进入
-		gtk_text_buffer_get_end_iter(buffer, &iter);
-		gtk_text_buffer_insert(buffer, &iter, get_buf, -1);
-		memset(buf, 0, sizeof(buf));
-		gdk_threads_leave();
+		printf("%s\n", buf);
+		mod = buf[0];
+		if (mod == '1')
+		{
+			g_print("%s", buf + 2);
+			sprintf(get_buf, "%s", buf + 2);
+			gdk_threads_enter(); //进入
+			gtk_text_buffer_get_end_iter(buffer, &iter);
+			gtk_text_buffer_insert(buffer, &iter, get_buf, -1);
+			memset(buf, 0, sizeof(buf));
+			gdk_threads_leave();
+		}
+		else if (mod == '2')
+		{
+			printf("download\n");
+			download_file(buf);
+		}
 	}
 }
 
@@ -185,6 +138,70 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	gtk_widget_destroy(data);
 }
 
+void get_file()
+{
+	int fd = open(file_path, O_RDONLY);
+	char buf[MAX_LEN + 64];
+	if (fd < 0)
+	{
+		sys_err("open", -3);
+	}
+
+	const char* target;
+	target = gtk_entry_get_text(GTK_ENTRY(target_entry));
+
+	while (1)
+	{
+		memset(buf, 0, sizeof(buf));
+		int len = read(fd, buf, sizeof(char) * MAX_LEN);
+
+		if (len == 0) break;	//读取出错
+
+		char *temp = NULL;
+		temp = (char*)malloc(sizeof(char) * MAX_LEN + 64);
+		memset(temp, 0, sizeof(temp));
+
+		strcpy(temp, "2:");
+		strcat(temp, target);
+		strcat(temp, ";");
+		strcat(temp, buf);
+		len = len + strlen(target) + 3;
+
+		// 考虑一次没读完
+		int _tmp = 0;
+		while (1)
+		{
+			int ret = write(sd, temp + _tmp, len - _tmp);
+			if (ret > 0)
+			{
+				_tmp += ret;
+			}
+			if (_tmp == ret)
+			{
+				break;
+			}
+			if (ret < 0)
+			{
+				perror("write");
+				break;
+			}
+		}
+
+		if (temp != NULL)
+		{
+			free(temp);
+			temp = NULL;
+		}
+	}
+}
+
+void download_file(gchar buf[])
+{
+	int filefd = open("file.txt", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	write(filefd, buf + 2, strlen(buf) - 2);
+	close(filefd);
+}
+
 void on_send_file_click()
 {
 	printf("%s\n", file_path);
@@ -194,7 +211,7 @@ void on_send_file_click()
 void create_win()
 {
 	GtkWidget *win, *vbox, *hbox, *hbox1;
-	GtkWidget *button, *login_name, *target_name;
+	GtkWidget *button, *login_name;
 
 	win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(win), "输入用户名");
@@ -265,8 +282,6 @@ void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
 
 int main (int argc, char* argv[])
 {
-	
-
 	GtkWidget *window;
 	GtkWidget *vbox, *hbox, *hbox1, *hbox2, *button, *button2, *label, *label1, *label2, *view;
 
@@ -342,9 +357,8 @@ int main (int argc, char* argv[])
 	//GtkWidget *file_text = gtk_scrolled_window_new(NULL,NULL);
 
 	// 这里显示文件目录（未做） 怎么接受另一个函数结束信号
-	path_text = gtk_text_view_new();
-	gtk_box_pack_start(GTK_BOX(vbox), path_text, TRUE, TRUE, 5);
-	file_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(path_text));
+	path_entry = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(vbox), path_entry, FALSE, FALSE, 5);
 
 	gtk_widget_show_all(window);
 

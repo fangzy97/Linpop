@@ -39,7 +39,7 @@ void sys_err(const char* ptr, int num)
 void get_file(char* buf)
 {
 	int filefd = open("file.txt", O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	write(filefd, buf + 2, strlen(buf) - 2);
+	write(filefd, buf, strlen(buf));
 	close(filefd);
 }
 
@@ -62,6 +62,9 @@ char* getTarget(char* str)
 
 char* getMessage(char* str)
 {
+	printf("get_message\n");
+	printf("%s\n", str);
+
 	char* result;
 	result = (char*)malloc(sizeof(char) * MAX_LEN);
 	memset(result, 0, sizeof(result));
@@ -80,7 +83,7 @@ char* getMessage(char* str)
 			result[num++] = str[i];
 		}
 	}
-
+	printf("%s\n", result);
 	return result;
 }
 
@@ -90,7 +93,7 @@ void do_server(gpointer id)
 	char mod;
 	char tobuf[MAX_LEN];
 	char target[64];
-	char temp[MAX_LEN];
+	char temp[MAX_LEN], temp2[MAX_LEN];
 	int flag = 0;
 
 	while (read(user[GPOINTER_TO_INT(id)].sd, user[GPOINTER_TO_INT(id)].buf, MAX_LEN) != -1)
@@ -114,14 +117,18 @@ void do_server(gpointer id)
 			strcat(tobuf, temp);
 			strcat(tobuf, "\n");
 
+			memset(temp2, 0, sizeof(temp2));
+			strcpy(temp2, "1:");
+			strcat(temp2, tobuf);
+
 			if (strcmp(target, "ALL") == 0)
 			{
 				for (int i = 0; i < MAX_USERS; i++)
 				{
 					if (user[i].in_use)
 					{
-						write(user[i].sd, tobuf, MAX_LEN);
-						printf("%s\n", tobuf);
+						write(user[i].sd, temp2, MAX_LEN);
+						g_print("%s\n", temp2);
 					}
 				}
 			}
@@ -131,8 +138,8 @@ void do_server(gpointer id)
 				{
 					if (user[i].in_use && (strcmp(user[i].name, target) == 0 || i == GPOINTER_TO_INT(id)))
 					{
-						write(user[i].sd, tobuf, MAX_LEN);
-						printf("%s\n", tobuf);
+						write(user[i].sd, temp2, MAX_LEN);
+						g_print("%s\n", temp2);
 					}
 				}
 			}
@@ -140,7 +147,25 @@ void do_server(gpointer id)
 		else if (mod == '2')
 		{
 			printf("文件传输\n");
-			get_file(user[GPOINTER_TO_INT(id)].buf);
+
+			strcpy(tobuf, user[GPOINTER_TO_INT(id)].name);
+			strcpy(target, getTarget(user[GPOINTER_TO_INT(id)].buf));
+			strcpy(temp, getMessage(user[GPOINTER_TO_INT(id)].buf));
+
+			memset(temp2, 0, sizeof(temp2));
+			strcpy(temp2, "2:");
+			strcat(temp2, temp);
+
+			for (int i = 0; i < MAX_USERS; i++)
+			{
+				if (user[i].in_use && (strcmp(user[i].name, target) == 0))
+				{
+					write(user[i].sd, temp2, MAX_LEN);
+					g_print("%s\n", temp2);
+				}
+			}
+
+			get_file(temp);
 		}
 	}
 	user[GPOINTER_TO_INT(id)].in_use = FALSE;

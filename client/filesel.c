@@ -5,16 +5,18 @@ void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs)
     if (file_path != NULL)
     {
         free(file_path);
+        file_path = NULL;
     }
-    else
-    {
-        file_path = (char*)malloc(sizeof(char) * 4096);
-    }
+    
+    file_path = (char*)malloc(sizeof(char) * 4096);
+    memset(file_path, 0, sizeof(file_path));
 
     GtkWidget *dialog;
     gchar message[1024];
     const gchar *filename;
     filename = gtk_file_selection_get_filename(fs);
+
+    memset(message, 0, sizeof(message));
     if(g_file_test(filename,G_FILE_TEST_IS_DIR))
     {
         sprintf(message,"你选择的目录是:%s",filename);
@@ -27,9 +29,8 @@ void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs)
     strcpy(file_path, filename);
     printf("%s\n", file_path);
 
-    GtkTextIter iter;
-    gtk_text_buffer_get_end_iter(file_buffer, &iter);
-	gtk_text_buffer_insert(file_buffer, &iter, filename, -1);
+    gtk_entry_set_text(GTK_ENTRY(path_entry), "");
+    gtk_entry_set_text(GTK_ENTRY(path_entry), filename);
 
     dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
         GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
