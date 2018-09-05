@@ -36,17 +36,11 @@ void sys_err(const char* ptr, int num)
 	exit(num);
 }
 
-void send_file(char* src)
+void get_file(char* buf)
 {
-	char buf[MAX_LEN];
-	memset(buf, 0, sizeof(buf));
-
-    int fd = open(src,O_RDONLY);
-	if (fd < 0)
-	{
-		
-	}
-
+	int filefd = open("file.txt", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	write(filefd, buf + 2, strlen(buf) - 2);
+	close(filefd);
 }
 
 char* getTarget(char* str)
@@ -145,7 +139,8 @@ void do_server(gpointer id)
 		}
 		else if (mod == '2')
 		{
-			printf("function 2\n");
+			printf("文件传输\n");
+			get_file(user[GPOINTER_TO_INT(id)].buf);
 		}
 	}
 	user[GPOINTER_TO_INT(id)].in_use = FALSE;

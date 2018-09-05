@@ -2,7 +2,6 @@
 #include "function.h"
 
 #define OURPORT 8088
-#define MAX_LEN 2048
 
 gint sd; //套接字句柄
 struct sockaddr_in s_in; //套接字数据结构
@@ -13,13 +12,15 @@ gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
 
 static GtkWidget *text;
+static GtkWidget *path_text;
 static GtkTextBuffer *buffer; //显示对话内容的文本显示缓冲区
 static GtkWidget *message_entry; //显示输入消息的单行录入控件
 static GtkWidget *name_entry; //输入用户名的单行录入控件
 static GtkWidget *login_button; //登录按钮
 static GtkWidget *target_entry;
-static GtkWidget *path_entry;
 
+GtkTextBuffer *file_buffer;
+GtkWidget *path_entry;
 char *file_path;
 
 void sys_err(const char *ptr,int num)
@@ -28,25 +29,41 @@ void sys_err(const char *ptr,int num)
     exit(num);
 }
 
-void get_file(char* src)
+void get_file()
 {
-	int fd = open(src, O_RDONLY);
-	char buf[MAX_LEN];
+	int fd = open(file_path, O_RDONLY);
+	char buf[MAX_LEN + 10];
 	if (fd < 0)
 	{
 		sys_err("open", -3);
 	}
 
+	int tmp = 0;
 	while (1)
 	{
-		int len = read(fd, buf, sizeof(buf));
-		
+		memset(buf, 0, sizeof(buf));
+		int len = read(fd, buf, sizeof(char) * MAX_LEN);
+
 		if (len == 0) break;	//读取出错
 
+		if (len > 0)
+		{
+			tmp += len;
+		}
+
+		char *temp = NULL;
+		temp = (char*)malloc(sizeof(char) * MAX_LEN + 10);
+		memset(temp, 0, sizeof(temp));
+
+		strcpy(temp, "2:");
+		strcat(temp, buf);
+		len += 2;
+
+		// 考虑一次没读完
 		int _tmp = 0;
 		while (1)
 		{
-			int ret = write(sd, buf + _tmp, len - _tmp);
+			int ret = write(sd, temp + _tmp, len - _tmp);
 			if (ret > 0)
 			{
 				_tmp += ret;
@@ -60,6 +77,12 @@ void get_file(char* src)
 				perror("write");
 				break;
 			}
+		}
+
+		if (temp != NULL)
+		{
+			free(temp);
+			temp = NULL;
 		}
 	}
 }
@@ -165,6 +188,7 @@ void on_button_clicked(GtkButton *button, gpointer data)
 void on_send_file_click()
 {
 	printf("%s\n", file_path);
+	get_file();
 }
 
 void create_win()
@@ -318,6 +342,9 @@ int main (int argc, char* argv[])
 	//GtkWidget *file_text = gtk_scrolled_window_new(NULL,NULL);
 
 	// 这里显示文件目录（未做） 怎么接受另一个函数结束信号
+	path_text = gtk_text_view_new();
+	gtk_box_pack_start(GTK_BOX(vbox), path_text, TRUE, TRUE, 5);
+	file_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(path_text));
 
 	gtk_widget_show_all(window);
 

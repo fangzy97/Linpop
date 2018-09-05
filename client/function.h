@@ -12,7 +12,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#define MAX_LEN 2048
+
 extern char *file_path;
+extern GtkWidget *path_entry;
+extern GtkTextBuffer *file_buffer;
 
 void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs);
 void File_button_clicked (GtkWidget *button,gpointer userdata);

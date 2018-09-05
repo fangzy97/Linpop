@@ -27,6 +27,10 @@ void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs)
     strcpy(file_path, filename);
     printf("%s\n", file_path);
 
+    GtkTextIter iter;
+    gtk_text_buffer_get_end_iter(file_buffer, &iter);
+	gtk_text_buffer_insert(file_buffer, &iter, filename, -1);
+
     dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
         GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
 
