@@ -27,6 +27,7 @@ static GtkWidget *message_entry; //显示输入消息的单行录入控件
 static GtkWidget *name_entry; //输入用户名的单行录入控件
 static GtkWidget *login_button; //登录按钮
 static GtkWidget *target_entry;
+static GtkWidget *path_entry;
 
 void sys_err(const char *ptr,int num)
 {
@@ -243,7 +244,7 @@ void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
 int main (int argc, char* argv[])
 {
 	GtkWidget *window;
-	GtkWidget *vbox, *hbox, *hbox1, *button, *label, *label1, *view;
+	GtkWidget *vbox, *hbox, *hbox1, *hbox2, *button, *button2, *label, *label1, *label2, *view;
 
 	gtk_init(&argc,&argv);
 
@@ -276,6 +277,7 @@ int main (int argc, char* argv[])
 	label1 = gtk_label_new("发送目标：");
 	gtk_box_pack_start(GTK_BOX(hbox1), label1, FALSE, FALSE, 5);
 
+	// target_entry不动
 	target_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox1), target_entry, FALSE, FALSE, 5);
 
@@ -285,12 +287,28 @@ int main (int argc, char* argv[])
 	label = gtk_label_new("输入消息：");
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
 
+	// message_entry不动
 	message_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox), message_entry, FALSE, FALSE, 5);
 
-	button = gtk_button_new_with_label("发送");
+	// button不动
+	button = gtk_button_new_with_label("发送消息");
 	gtk_box_pack_start(GTK_BOX(hbox),button,FALSE,FALSE,5);
 	g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_send), NULL);
+
+	hbox2 = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox2, FALSE, FALSE, 5);
+
+	label2 = gtk_label_new("文件路径：");
+	gtk_box_pack_start(GTK_BOX(hbox2), label2, FALSE, FALSE, 5);
+
+	// path_entry不动
+	path_entry = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox2), path_entry, FALSE, FALSE, 5);
+
+	// button2不动
+	button2 = gtk_button_new_with_label("发送文件");
+	gtk_box_pack_start(GTK_BOX(hbox2), button2, FALSE, FALSE, 5);
 
 	gtk_widget_show_all(window);
 
