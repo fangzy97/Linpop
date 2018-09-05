@@ -20,5 +20,7 @@ extern GtkWidget *path_entry;
 void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs);
 void File_button_clicked (GtkWidget *button,gpointer userdata);
 void download_file(gchar buf[]);
+void start_page();
+int create_main ();
 
 #endif

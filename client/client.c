@@ -10,11 +10,13 @@ gchar buf[MAX_LEN]; //写缓冲区
 gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
 
+static GtkWidget *main_window;
 static GtkWidget *text;
 static GtkWidget *path_text;
 static GtkTextBuffer *buffer; //显示对话内容的文本显示缓冲区
 static GtkWidget *message_entry; //显示输入消息的单行录入控件
 static GtkWidget *name_entry; //输入用户名的单行录入控件
+static GtkWidget *password_entry; //输入用户名的单行录入控件
 static GtkWidget *login_button; //登录按钮
 static GtkWidget *target_entry;
 
@@ -73,7 +75,7 @@ gboolean do_connect() //连接多人聊天服务器
 	memset(&s_in, 0, sizeof(s_in));
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons(OURPORT);
-	s_in.sin_addr.s_addr = inet_addr("192.168.153.135");
+	s_in.sin_addr.s_addr = inet_addr("192.168.153.136");
 	slen = sizeof(struct sockaddr_in);
 	
 	if (connect(sd, (struct sockaddr*)&s_in, slen) < 0)
@@ -105,7 +107,6 @@ void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 	if(do_connect() == TRUE)
 	{
-		gtk_widget_set_sensitive(login_button, FALSE);
 		g_thread_new(username, (GThreadFunc)get_message, NULL);
 
 	}
@@ -120,22 +121,15 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	name = gtk_entry_get_text(GTK_ENTRY(name_entry));
 	sprintf(username, "%s", name);
 
-	//tar = gtk_entry_get_text(GTK_ENTRY(target_entry));
-	// if (strcmp(tar, "") == 0)
-	// {
-	// 	sprintf(target, "%s", "ALL");
-	// }
-	// else
-	// {
-	// 	sprintf(target, "%s", tar);
-	// }
+	gtk_widget_set_visible(main_window, TRUE);
 
 	if(do_connect())
 	{
-		gtk_widget_set_sensitive(login_button, FALSE);
 		g_thread_new(username, (GThreadFunc)get_message, NULL);
 	}
 	gtk_widget_destroy(data);
+
+	gtk_widget_set_visible(main_window, TRUE);
 }
 
 void get_file()
@@ -208,10 +202,10 @@ void on_send_file_click()
 	get_file();
 }
 
-void create_win()
+void create_win(gpointer data)
 {
-	GtkWidget *win, *vbox, *hbox, *hbox1;
-	GtkWidget *button, *login_name;
+	GtkWidget *win, *vbox, *hbox, *hbox1, *hbox2;
+	GtkWidget *button, *login_name, *password, *target_name;
 
 	win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(win), "输入用户名");
@@ -223,29 +217,32 @@ void create_win()
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
 	
+	GtkWidget *image_one = gtk_image_new_from_file("login.gif");
+	gtk_container_add(GTK_CONTAINER(vbox), image_one);
+
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 5);
+	hbox2 = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox2, TRUE, TRUE, 5);
 
 	login_name = gtk_label_new("用  户  名： ");
 	gtk_box_pack_start(GTK_BOX(hbox), login_name, TRUE, TRUE, 5);
 
 	name_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox), name_entry, TRUE, TRUE, 5);
-	
-	// hbox1 = gtk_hbox_new(FALSE, 0);
-	// gtk_box_pack_start(GTK_BOX(vbox), hbox1, TRUE, TRUE, 5);
 
-	// target_name = gtk_label_new("聊天目标：");
-	// gtk_box_pack_start(GTK_BOX(hbox1), target_name, TRUE, TRUE, 5);
+	password = gtk_label_new("密         码： ");
+	gtk_box_pack_start(GTK_BOX(hbox2), password, TRUE, TRUE, 5);
 
-	// target_entry = gtk_entry_new();
-	// gtk_box_pack_start(GTK_BOX(hbox1), target_entry, TRUE, TRUE, 5);
+	password_entry = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox2), password_entry, TRUE, TRUE, 5);
 
 	button = gtk_button_new_from_stock(GTK_STOCK_OK);
 	g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_button_clicked), win);
 	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE,5);
 
 	gtk_widget_show_all(win);
+	gtk_widget_destroy(data);
 }
 
 void on_send (GtkButton* button, gpointer data)
@@ -269,7 +266,9 @@ void on_send (GtkButton* button, gpointer data)
 
 void on_login(GtkWidget *button, gpointer data)
 { 
-	create_win();
+	create_win(data);
+	create_main();
+	gtk_widget_set_visible(main_window, FALSE);
 }
 
 void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
@@ -280,28 +279,20 @@ void on_delete_event (GtkWidget *widget, GdkEvent* event, gpointer data)
 	gtk_main_quit();
 }
 
-int main (int argc, char* argv[])
+int create_main ()
 {
-	GtkWidget *window;
 	GtkWidget *vbox, *hbox, *hbox1, *hbox2, *button, *button2, *label, *label1, *label2, *view;
 
-	gtk_init(&argc,&argv);
-
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "客户端");
-	g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_delete_event), NULL);
-	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(main_window), "客户端");
+	g_signal_connect(G_OBJECT(main_window), "delete_event", G_CALLBACK(on_delete_event), NULL);
+	gtk_container_set_border_width(GTK_CONTAINER(main_window), 10);
 
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(window), vbox);
+	gtk_container_add(GTK_CONTAINER(main_window), vbox);
 
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
-	label = gtk_label_new("点击登录按钮连接服务器");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
-	login_button = gtk_button_new_with_label("登录");
-	gtk_box_pack_start(GTK_BOX(hbox), login_button, FALSE, FALSE, 5);
-	g_signal_connect(G_OBJECT(login_button), "clicked", G_CALLBACK(on_login), NULL);
 
 	view = gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(view), GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
@@ -360,11 +351,58 @@ int main (int argc, char* argv[])
 	path_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(vbox), path_entry, FALSE, FALSE, 5);
 
+	gtk_widget_show_all(main_window);
+	
+	return FALSE;
+}
+
+
+int main (int argc, char* argv[])
+{
+	GtkWidget *window;
+	GtkWidget *vbox, *vbox1,*vbox2,*vbox3,*hbox, *hbox1, *hbox2, *hbox3;
+	GtkWidget *button, *button2, *label, *label1, *label2,*label3, *view;
+
+	gtk_init(&argc,&argv);
+
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(window), "客户端");
+	g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_delete_event), NULL);
+	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(window), vbox);
+
+	GtkWidget *image_one = gtk_image_new_from_file("image2.png");
+	gtk_container_add(GTK_CONTAINER(vbox), image_one);
+
+	hbox = gtk_hbox_new(FALSE, 0);
+	hbox3 = gtk_hbox_new(FALSE, 0);
+	vbox1 = gtk_vbox_new(FALSE, 0);
+	vbox2 = gtk_vbox_new(FALSE, 0);
+	vbox3 = gtk_vbox_new(FALSE, 0);
+
+	label3 = gtk_label_new("NINE ver1.0");
+	gtk_box_pack_start(GTK_BOX(vbox3), label3, TRUE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), vbox3, FALSE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
+
+	label = gtk_label_new("点击登录按钮连接服务器");
+	gtk_box_pack_start(GTK_BOX(vbox1), label, TRUE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), vbox1, FALSE, FALSE, 5);
+
+	login_button = gtk_button_new_with_label("登录");
+	gtk_box_pack_start(GTK_BOX(vbox2), login_button, TRUE, FALSE, 5);
+
+	//this function is linked to the login window	
+	g_signal_connect(G_OBJECT(login_button), "clicked", G_CALLBACK(on_login), NULL);
+	gtk_box_pack_start(GTK_BOX(vbox), vbox2, FALSE, FALSE, 5);
+
 	gtk_widget_show_all(window);
 
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
-	
-	return FALSE;
+
+	return 0;
 }
