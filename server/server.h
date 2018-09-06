@@ -18,4 +18,6 @@
 #define MAX_USERS 10 
 #define MAX_LEN 2048
 
+int check(char * username,char *password);
+
 #endif

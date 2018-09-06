@@ -1,17 +1,5 @@
 /* server.c */
-#include <glib.h>
-#include <stdio.h>
-#include <string.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <errno.h>
-#include <netinet/in.h>
+#include "server.h"
 
 #define OURPORT 8088
 #define MAX_USERS 10 
@@ -225,6 +213,9 @@ int main(int argc, char* argv[])
 	gchar buf[MAX_LEN];
 	gchar tobuf[MAX_LEN];
 	gint length,i,j;
+	
+	int flag;
+	char login_sign[64];
 
 	sd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sd == -1)
@@ -286,9 +277,26 @@ int main(int argc, char* argv[])
 
 				getUserName(temp, count);
 				getPassword(temp, count);
-				
+
+				memset(login_sign, 0, sizeof(login_sign));
+				// flag = check(user[count].name, user[count].password);
+				// printf("%d\n", flag);
+
 				g_thread_new(user[count].name, (GThreadFunc)do_server, (gpointer)count);
 				count++;
+				// if (flag == 0)
+				// {
+				// 	strcpy(login_sign, "3:0");
+				// 	write(user[count].sd, login_sign, MAX_LEN);
+				// }
+				// else
+				// {
+				// 	strcpy(login_sign, "3:1");
+				// 	write(user[count].sd, login_sign, MAX_LEN);
+
+				// 	g_thread_new(user[count].name, (GThreadFunc)do_server, (gpointer)count);
+				// 	count++;
+				// }
 			}
 		}
 	}

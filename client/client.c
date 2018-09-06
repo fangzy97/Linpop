@@ -32,13 +32,14 @@ void sys_err(const char *ptr,int num)
     exit(num);
 }
 
-void get_message()
+void get_message(gpointer data)
 {
 	GtkTextIter iter;
 	gchar get_buf[MAX_LEN];
 	gchar buf[MAX_LEN];
 	
 	char mod;
+	int flag;
 
 	while(read(sd, buf, MAX_LEN) != -1) //只要读取数据成功就循环执行
 	{
@@ -60,6 +61,29 @@ void get_message()
 		{
 			printf("download\n");
 			download_file(buf);
+		}
+		else if (mod == '3')
+		{
+			flag = (int)(buf[2] - '0');
+			
+			if (flag == 0)
+			{
+				GtkWidget *dialog;
+				gchar message[64];
+				sprintf(message, "用户名或密码错误");
+
+				dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
+					GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
+
+				gtk_dialog_run(GTK_DIALOG(dialog));
+				gtk_widget_destroy(dialog);
+			}
+			else
+			{
+				gtk_widget_destroy(data);
+				// 启动主界面
+				create_main();
+			}
 		}
 	}
 }
@@ -137,10 +161,8 @@ void on_button_clicked(GtkButton *button, gpointer data)
 
 	if(do_connect())
 	{
-		g_thread_new(username, (GThreadFunc)get_message, NULL);
-
+		g_thread_new(username, (GThreadFunc)get_message, data);
 		gtk_widget_destroy(data);
-
 		// 启动主界面
 		create_main();
 	}
