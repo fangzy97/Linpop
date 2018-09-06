@@ -1,13 +1,13 @@
 #include <gtk/gtk.h>
 #include<string.h>
-static void
-login_button_clicked (GtkWidget* button,gpointer * data_account)
+
+void login_stats (int stats)
 {
     GtkWidget* dialog ;
     GtkMessageType type ;
     gchar *message;
 
-    switch((gint)data_account)
+    switch(stats)
     {
         case 1 :
             message = "用户名不存在";

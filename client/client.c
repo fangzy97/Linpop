@@ -162,24 +162,38 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	pw = gtk_entry_get_text(GTK_ENTRY(password_entry));
 	sprintf(password, "%s", pw);
 
-	if(do_connect())
+	if (strcmp(username, "123") != 0)
 	{
-		g_thread_new(username, (GThreadFunc)get_message, data);
-		gtk_widget_destroy(data);
-		// 启动主界面
-		create_main();
+		login_stats(1);
 	}
 	else
 	{
-		GtkWidget *dialog;
-		gchar message[64];
-		sprintf(message, "无法连接到服务器");
+		if (strcmp(password, "123") != 0)
+		{
+			login_stats(2);
+		}
+		else
+		{
+			if(do_connect())
+			{
+				g_thread_new(username, (GThreadFunc)get_message, data);
+				gtk_widget_destroy(data);
+				// 启动主界面
+				create_main();
+			}
+			else
+			{
+				GtkWidget *dialog;
+				gchar message[64];
+				sprintf(message, "无法连接到服务器");
 
-		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
-        	GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
+				dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
+					GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
 
-		gtk_dialog_run(GTK_DIALOG(dialog));
-		gtk_widget_destroy(dialog);
+				gtk_dialog_run(GTK_DIALOG(dialog));
+				gtk_widget_destroy(dialog);
+			}
+		}
 	}
 }
 

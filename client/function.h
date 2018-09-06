@@ -50,6 +50,7 @@ void on_send_file_click();
 void new_folder(char username[],char str[]);
 void create_history();
 void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data);
+void login_stats (int stats);
 
 GtkWidget *create_leftbox();
 GtkWidget *create_rightbox();
