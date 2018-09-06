@@ -29,8 +29,12 @@ void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs)
     strcpy(file_path, filename);
     printf("%s\n", file_path);
 
-    gtk_entry_set_text(GTK_ENTRY(path_entry), "");
-    gtk_entry_set_text(GTK_ENTRY(path_entry), filename);
+    GtkTextIter start, end;
+    gtk_text_buffer_get_bounds(GTK_TEXT_BUFFER(file_buffer), &start, &end);
+    gtk_text_buffer_insert(GTK_TEXT_BUFFER(file_buffer), &end, filename, strlen(filename));
+
+    // gtk_entry_set_text(GTK_ENTRY(path_entry), "");
+    // gtk_entry_set_text(GTK_ENTRY(path_entry), filename);
 
     dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
         GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
@@ -45,6 +49,7 @@ void File_button_clicked (GtkWidget *button,gpointer userdata)
 {
     GtkWidget* dialog ;
     dialog = gtk_file_selection_new("请选择一个文件或目录:");
+
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
     gtk_signal_connect(GTK_OBJECT(dialog), "destroy", GTK_SIGNAL_FUNC(gtk_widget_destroy), &dialog);
     gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(dialog)->ok_button), "clicked", 

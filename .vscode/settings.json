@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "typeinfo": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "errno.h": "c"
     }
 }

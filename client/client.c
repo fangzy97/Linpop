@@ -2,6 +2,7 @@
 #include "function.h"
 
 #define OURPORT 8088
+#define M_IP "127.0.0.1"
 
 gint sd; //套接字句柄
 struct sockaddr_in s_in; //套接字数据结构
@@ -19,7 +20,7 @@ static GtkWidget *message_entry; //显示输入消息的单行录入控件
 static GtkWidget *name_entry; //输入用户名的单行录入控件
 static GtkWidget *password_entry; //输入用户名的单行录入控件
 static GtkWidget *login_button; //登录按钮
-static GtkWidget *target_entry;
+// static GtkWidget *target_entry;
 
 GtkTextBuffer *file_buffer;
 GtkWidget *path_entry;
@@ -47,9 +48,11 @@ void get_message()
 		{
 			g_print("%s", buf + 2);
 			sprintf(get_buf, "%s", buf + 2);
+
 			gdk_threads_enter(); //进入
 			gtk_text_buffer_get_end_iter(buffer, &iter);
 			gtk_text_buffer_insert(buffer, &iter, get_buf, -1);
+			new_folder(username, get_buf);
 			memset(buf, 0, sizeof(buf));
 			gdk_threads_leave();
 		}
@@ -77,7 +80,7 @@ gboolean do_connect() //连接多人聊天服务器
 	memset(&s_in, 0, sizeof(s_in));
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons(OURPORT);
-	s_in.sin_addr.s_addr = inet_addr("192.168.153.136");
+	s_in.sin_addr.s_addr = inet_addr(M_IP);
 	slen = sizeof(struct sockaddr_in);
 	
 	if (connect(sd, (struct sockaddr*)&s_in, slen) < 0)
@@ -135,11 +138,24 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	if(do_connect())
 	{
 		g_thread_new(username, (GThreadFunc)get_message, NULL);
-	}
-	gtk_widget_destroy(data);
 
-	// 启动主界面
-	create_main();
+		gtk_widget_destroy(data);
+
+		// 启动主界面
+		create_main();
+	}
+	else
+	{
+		GtkWidget *dialog;
+		gchar message[64];
+		sprintf(message, "无法连接到服务器");
+
+		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
+        	GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
+
+		gtk_dialog_run(GTK_DIALOG(dialog));
+		gtk_widget_destroy(dialog);
+	}
 }
 
 void get_file()
@@ -158,9 +174,11 @@ void get_file()
 	{
 		memset(buf, 0, sizeof(buf));
 		int len = read(fd, buf, sizeof(char) * MAX_LEN);
-
-		if (len == 0) break;	//读取出错
-
+		// printf("文件指针位置为：%ld\n", lseek(fd, 0, SEEK_CUR));
+		printf("%s", buf);
+		
+		if (len <= 0) break;	//读取出错
+	
 		char *temp = NULL;
 		temp = (char*)malloc(sizeof(char) * MAX_LEN + 64);
 		memset(temp, 0, sizeof(temp));
@@ -196,7 +214,9 @@ void get_file()
 			free(temp);
 			temp = NULL;
 		}
+	
 	}
+	printf("读取结束\n");
 }
 
 void download_file(gchar buf[])
@@ -204,12 +224,32 @@ void download_file(gchar buf[])
 	int filefd = open("file.txt", O_WRONLY | O_CREAT | O_APPEND, 0777);
 	write(filefd, buf + 2, strlen(buf) - 2);
 	close(filefd);
+
+	GtkTextIter iter;
+	gtk_text_buffer_get_end_iter(buffer, &iter);
+	gtk_text_buffer_insert(buffer, &iter, "文件传输完成", -1);		
 }
 
 void on_send_file_click()
 {
-	printf("%s\n", file_path);
-	get_file();
+	if (file_path != NULL)
+	{
+		printf("%s\n", file_path);
+		get_file();
+	}
+	else
+	{
+		GtkWidget *dialog;
+		gchar message[64];
+		memset(message, 0, sizeof(message));
+		sprintf(message, "请选择文件！");
+
+		dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, 
+        	GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
+
+		gtk_dialog_run(GTK_DIALOG(dialog));
+		gtk_widget_destroy(dialog);
+	}
 }
 
 void create_win(gpointer data)
@@ -260,12 +300,20 @@ void on_send (GtkButton* button, gpointer data)
 {
 	const char* message;
 	const char* target;
+	GtkTextIter start, end;
+
 	if(isconnected == FALSE) return;
-	
-	message = gtk_entry_get_text(GTK_ENTRY(message_entry));
+
+	gtk_text_buffer_get_bounds(GTK_TEXT_BUFFER(input_buffer), &start, &end);
+	message = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(input_buffer), &start, &end, FALSE);
+
+	gtk_text_buffer_set_text(input_buffer, "", 0);
+
 	target = gtk_entry_get_text(GTK_ENTRY(target_entry));
 
+	char *buf = (char*)malloc(sizeof(char) * MAX_LEN);
 	memset(buf, 0, sizeof(buf));
+
 	strcpy(buf, "1:");
 	strcat(buf, target);
 	strcat(buf, ";");
@@ -432,6 +480,8 @@ int create_main ()
 
 int main (int argc, char* argv[])
 {
+	file_path = NULL;
+
 	GtkWidget *window;
 	GtkWidget *vbox, *vbox1,*vbox2,*vbox3,*hbox, *hbox1, *hbox2, *hbox3;
 	GtkWidget *button, *button2, *label, *label1, *label2,*label3, *view;

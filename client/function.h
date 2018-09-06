@@ -18,6 +18,10 @@ extern char *file_path;
 extern GtkWidget *path_entry;
 extern gchar username[64];
 extern GtkTextBuffer *buffer;
+extern GtkWidget *target_entry;
+extern GtkWidget *path_entry;
+extern GtkTextBuffer *input_buffer;
+extern GtkTextBuffer *file_buffer;
 
 void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs);
 void File_button_clicked (GtkWidget *button,gpointer userdata);
@@ -28,7 +32,14 @@ void calc_button_clicked ( GtkWidget *button1 , gpointer userdata);
 void personal_information_button_clicked ( GtkWidget *button , gpointer userdata);
 void cale_button_clicked ( GtkWidget *button1 , gpointer userdata);
 void File_button_clicked (GtkWidget *button,gpointer userdata);
+void on_send (GtkButton* button, gpointer data);
+void on_send_file_click();
+void new_folder(char username[],char str[]);
+void create_history();
+void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data);
+
 GtkWidget *create_leftbox();
 GtkWidget *create_rightbox();
+
 
 #endif

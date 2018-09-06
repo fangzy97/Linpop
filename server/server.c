@@ -157,12 +157,26 @@ void do_server(gpointer id)
 			strcpy(temp2, "2:");
 			strcat(temp2, temp);
 
-			for (int i = 0; i < MAX_USERS; i++)
+			if (strcmp(target, "ALL") == 0)
 			{
-				if (user[i].in_use && (strcmp(user[i].name, target) == 0))
+				for (int i = 0; i < MAX_USERS; i++)
 				{
-					write(user[i].sd, temp2, MAX_LEN);
-					g_print("%s\n", temp2);
+					if (user[i].in_use)
+					{
+						write(user[i].sd, temp2, MAX_LEN);
+						g_print("%s\n", temp2);
+					}
+				}
+			}
+			else
+			{
+				for (int i = 0; i < MAX_USERS; i++)
+				{
+					if (user[i].in_use && (strcmp(user[i].name, target) == 0))
+					{
+						write(user[i].sd, temp2, MAX_LEN);
+						g_print("%s\n", temp2);
+					}
 				}
 			}
 
