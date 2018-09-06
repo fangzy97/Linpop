@@ -1,53 +1,48 @@
+//头文件
 #include <gtk/gtk.h>
 #include<stdlib.h>
-#include "function.h"
+struct info {
+    gchar *name;
+	gchar *sex;
+	gchar *age;
+	gchar *signature;
+	gint year;
+	gint month;
+	gint date;
+};
+
+struct info p_info;
+
+
+
 
 GtkWidget *entry1,*entry2,*entry3,*entry4,*spin1,*spin2,*spin3;
-
-char* getNumber(int num)
-{
-	char number[10], result[10];
-	int temp;
-
-	memset(number, 0, sizeof(number));
-	memset(result, 0, sizeof(result));
-
-	int a = 0;
-	while (num > 0)
-	{
-		temp = num % 10;
-		number[a++] = (char)(temp + '0');
-	}
-
-	int len = strlen(number);
-	for (int i = 0; i < len; i++)
-	{
-		result[i] = number[len - i];
-	}
-	
-	return result;
-}
-
 //函数声明
 void confirm_button_clicked ( GtkWidget *button , gpointer userdata)
 {
-	strcpy(p_info.name, gtk_entry_get_text (entry1));
-	strcpy(p_info.sex, gtk_entry_get_text (entry2));
-	strcpy(p_info.age, gtk_entry_get_text (entry3));
-	strcpy(p_info.signature, gtk_entry_get_text (entry4));
-	
-	// strcpy(p_info.year, getNumber(gtk_spin_button_get_value_as_int(spin1)));
-	// strcpy(p_info.month, getNumber(gtk_spin_button_get_value_as_int(spin2)));
-	// strcpy(p_info.date, getNumber(gtk_spin_button_get_value_as_int(spin3)));
-	p_info.year = gtk_spin_button_get_value_as_int(spin1);
-	p_info.month = gtk_spin_button_get_value_as_int(spin2);
-	p_info.date = gtk_spin_button_get_value_as_int(spin3);
+	p_info.name=gtk_entry_get_text (entry1);
+	p_info.sex=gtk_entry_get_text (entry2);
+	p_info.age=gtk_entry_get_text (entry3);
+	p_info.signature=gtk_entry_get_text (entry4);
+	p_info.year=gtk_spin_button_get_value_as_int(spin1);
+	p_info.month=gtk_spin_button_get_value_as_int(spin2);
+	p_info.date=gtk_spin_button_get_value_as_int(spin3);
 
-	gtk_widget_destroy(userdata);
 }
-
 void personal_information_button_clicked ( GtkWidget *button , gpointer userdata)
 {
+	p_info.name=(gchar*)malloc(30*sizeof(gchar));
+	p_info.sex=(gchar*)malloc(30*sizeof(gchar));
+	p_info.age=(gchar*)malloc(30*sizeof(gchar));
+	p_info.signature=(gchar*)malloc(30*sizeof(gchar));
+
+	sprintf(p_info.name,"设置您的姓名");
+	sprintf(p_info.sex,"设置您的性别");
+	sprintf(p_info.age,"设置您的年龄");
+	sprintf(p_info.signature,"设置您的个性签名");
+	p_info.year=0;
+	p_info.month=0;
+	p_info.date=0;
 	//声明窗口控制的指针
 	GtkWidget* window;
 	//声明2个框架
@@ -84,7 +79,7 @@ void personal_information_button_clicked ( GtkWidget *button , gpointer userdata
 	//new button
 	confirm_button = gtk_button_new_with_label("confirm");
 	gtk_box_pack_start(GTK_BOX(v_box), confirm_button, FALSE, FALSE, 5);
-	g_signal_connect(G_OBJECT(confirm_button),"clicked",G_CALLBACK(confirm_button_clicked),window);
+	g_signal_connect(G_OBJECT(confirm_button),"clicked",G_CALLBACK(confirm_button_clicked),NULL);
 	//new v_h_box
 	v_h_box=gtk_hbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(frame_personal_infomation), v_h_box);
@@ -165,8 +160,7 @@ void personal_information_button_clicked ( GtkWidget *button , gpointer userdata
 	spin1 = gtk_spin_button_new_with_range(1900, 2100, 1);
 	//把旋转按钮放入盒子中
 	gtk_box_pack_start(GTK_BOX(v_h_h_v_box1), spin1, FALSE, FALSE, 2);
-	//设置年
-	gtk_spin_button_set_value(spin1, p_info.year);
+
 	
 	//创建一个标签
 	label = gtk_label_new("月: ");
@@ -176,8 +170,7 @@ void personal_information_button_clicked ( GtkWidget *button , gpointer userdata
 	spin2 = gtk_spin_button_new_with_range(1, 12, 1);
 	//把旋转按钮加入盒子中
 	gtk_box_pack_start(GTK_BOX(v_h_h_v_box2), spin2, FALSE, FALSE, 2);
-	//设置年
-	gtk_spin_button_set_value(spin2, p_info.month);
+
 	
 	//创建一个标签
 	label = gtk_label_new("日: ");
@@ -187,9 +180,7 @@ void personal_information_button_clicked ( GtkWidget *button , gpointer userdata
 	spin3 = gtk_spin_button_new_with_range(1, 31, 1);
 	//把旋转按钮加入盒子中
 	gtk_box_pack_start(GTK_BOX(v_h_h_v_box3), spin3, FALSE, FALSE, 2);
-	//设置年
-	gtk_spin_button_set_value(spin3, p_info.date);
-
+	
 	//显示全部窗口	
 	gtk_widget_show_all(window);
 	//主事件循环

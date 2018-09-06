@@ -14,6 +14,17 @@
 
 #define MAX_LEN 2048
 
+struct info 
+{
+    gchar *name;
+	gchar *sex;
+	gchar *age;
+	gchar *signature;
+	int year;
+	int month;
+	int date;
+};
+
 extern char *file_path;
 extern GtkWidget *path_entry;
 extern gchar username[64];
@@ -22,6 +33,8 @@ extern GtkWidget *target_entry;
 extern GtkWidget *path_entry;
 extern GtkTextBuffer *input_buffer;
 extern GtkTextBuffer *file_buffer;
+extern int isSet;
+extern struct info p_info;
 
 void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs);
 void File_button_clicked (GtkWidget *button,gpointer userdata);

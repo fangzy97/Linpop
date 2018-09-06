@@ -1,14 +1,16 @@
-#include "function.h"
+#include <gtk/gtk.h>
+#include <stdio.h>
 
-char tupian[20]="images/0.jpg";
-char tupian1[20]="images/1.jpg";
-char tupian2[20]="images/2.jpg";
-char tupian3[20]="images/3.jpg";
-char tupian4[20]="images/4.jpg";
-char tupian5[20]="images/6.jpg";
-char tupian6[20]="images/7.jpg";
-char tupian7[20]="images/8.jpg";
-char tupian8[20]="images/9.jpg";
+
+char tupian[20]="0.jpg";
+char tupian1[20]="1.jpg";
+char tupian2[20]="2.jpg";
+char tupian3[20]="3.jpg";
+char tupian4[20]="4.jpg";
+char tupian5[20]="6.jpg";
+char tupian6[20]="7.jpg";
+char tupian7[20]="8.jpg";
+char tupian8[20]="9.jpg";
 
 GtkWidget *imagemain;
 
@@ -34,6 +36,7 @@ if(data==9)
 gtk_image_set_from_file(imagemain,"9.jpg");
 
 }
+
 
 void xiugaitouxiang(GtkButton* button,gpointer data)
 {
@@ -136,7 +139,7 @@ imagemain = gtk_image_new_from_file(tupian);//add the picture
 gtk_container_add(GTK_CONTAINER(button0), imagemain);
 //gtk_container_add(GTK_CONTAINER(hbox1), image);
 gtk_box_pack_start(GTK_BOX(hbox1), button0,FALSE,FALSE,5);
-GtkWidget *label=gtk_label_new(username);//replace with the nickname
+GtkWidget *label=gtk_label_new("username");//replace with the nickname
 //gtk_container_add(GTK_CONTAINER(hbox1), label);
 
 g_signal_connect(G_OBJECT(button0),"clicked",G_CALLBACK(xiugaitouxiang),NULL);
@@ -275,59 +278,3 @@ gtk_container_add(GTK_CONTAINER(hbox23), label23);
 return vbox;
 }
 
-/*
-GtkWidget *create_leftbox()
-{
-    g_print("-------------------------------------------------------------------------\n");
-
-    GtkWidget *vbox = gtk_vbox_new(TRUE, 5);
-    //gtk_container_add(GTK_CONTAINER(window), vbox);
-    GtkWidget *hbox1 = gtk_hbox_new(TRUE, 5);
-    gtk_container_add(GTK_CONTAINER(vbox), hbox1);
-    GtkWidget *image = gtk_image_new_from_file("0.jpg");//add the picture
-    //gtk_container_add(GTK_CONTAINER(hbox1), image);
-    gtk_box_pack_start(GTK_BOX(hbox1), image,FALSE,FALSE,5);
-
-    GtkWidget *label=gtk_label_new(username);//replace with the nickname
-    //gtk_container_add(GTK_CONTAINER(hbox1), label);
-
-    //
-    GtkWidget *hbox_button = gtk_hbox_new(FALSE, 5);
-    GtkWidget *button_add = gtk_button_new_with_label("   添加好友   ");
-    GtkWidget *button_refresh = gtk_button_new_with_label("   刷新   ");
-    gtk_box_pack_start(GTK_BOX (hbox_button), button_add, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX (hbox_button), button_refresh, TRUE, TRUE, 0);
-    gtk_container_add(GTK_CONTAINER(vbox), hbox_button);
-
-
-    gtk_box_pack_start(GTK_BOX(hbox1), label,FALSE,FALSE,5);
-    GtkWidget *pander1 = gtk_expander_new_with_mnemonic("friend list");//好友列表 
-    gtk_container_add(GTK_CONTAINER(vbox), pander1);
-
-    GtkWidget *button2 = gtk_button_new();//
-    gtk_container_add(GTK_CONTAINER(pander1), button2);
-    GtkWidget *hbox2 = gtk_hbox_new(FALSE,5);//
-    gtk_container_add(GTK_CONTAINER(button2), hbox2);
-    GtkWidget *image1 = gtk_image_new_from_file("1.jpg");//第一个好友的头像
-    gtk_container_add(GTK_CONTAINER(hbox2), image1);
-    GtkWidget *label1=gtk_label_new("username");//第一个好友的名字
-    gtk_container_add(GTK_CONTAINER(hbox2), label1);
-
-    GtkWidget *separator1 = gtk_hseparator_new();//separator
-    gtk_box_pack_start (GTK_BOX (vbox), separator1, FALSE, TRUE, 5);
-
-    GtkWidget *pander2 = gtk_expander_new_with_mnemonic("group list");//群聊列表
-    gtk_container_add(GTK_CONTAINER(vbox), pander2);
-    GtkWidget *button3 = gtk_button_new();//
-    gtk_container_add(GTK_CONTAINER(pander2), button3);
-    GtkWidget *hbox3 = gtk_hbox_new(FALSE,5);//
-    gtk_container_add(GTK_CONTAINER(button3), hbox3);
-    GtkWidget *image2 = gtk_image_new_from_file("2.jpg");//第一个群聊的头像 
-    gtk_container_add(GTK_CONTAINER(hbox3), image2);
-    GtkWidget *label2=gtk_label_new("username");//第一个群聊的名字 
-    gtk_container_add(GTK_CONTAINER(hbox3), label2);
-    //gtk_expander_set_label_fill (pander2,TRUE);//子项的初始状态
-
-    return vbox;
-}
-*/

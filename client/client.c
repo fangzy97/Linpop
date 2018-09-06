@@ -26,6 +26,9 @@ GtkTextBuffer *file_buffer;
 GtkWidget *path_entry;
 char *file_path;
 
+int isSet;
+struct info p_info;
+
 void sys_err(const char *ptr,int num)
 {
     perror(ptr);
@@ -499,9 +502,34 @@ int create_main ()
 	return FALSE;
 }
 
+void initialize()
+{
+	p_info.name=(gchar*)malloc(30*sizeof(gchar));
+	p_info.sex=(gchar*)malloc(30*sizeof(gchar));
+	p_info.age=(gchar*)malloc(30*sizeof(gchar));
+	p_info.signature=(gchar*)malloc(30*sizeof(gchar));
+	// p_info.year=(gchar*)malloc(30*sizeof(gchar));
+	// p_info.month=(gchar*)malloc(30*sizeof(gchar));
+	// p_info.date=(gchar*)malloc(30*sizeof(gchar));
+
+	sprintf(p_info.name,"设置您的姓名");
+	sprintf(p_info.sex,"设置您的性别");
+	sprintf(p_info.age,"设置您的年龄");
+	sprintf(p_info.signature,"设置您的个性签名");
+	// sprintf(p_info.year,"1900");
+	// sprintf(p_info.month,"1");
+	// sprintf(p_info.date,"1");
+	p_info.year = 1900;
+	p_info.month = 1;
+	p_info.date = 1;
+
+	isSet = 0;
+}
 
 int main (int argc, char* argv[])
 {
+	initialize();
+
 	file_path = NULL;
 
 	GtkWidget *window;

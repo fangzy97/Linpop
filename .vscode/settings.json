@@ -2,6 +2,8 @@
     "files.associations": {
         "typeinfo": "c",
         "main.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "stdlib.h": "c",
+        "gtk.h": "c"
     }
 }
