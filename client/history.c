@@ -1,5 +1,17 @@
+/********************************************************************************
+ * Files         : history.c
+ * Description   : 该模块用于查看聊天记录
+ ********************************************************************************/
 #include "function.h"
 
+/* 
+    名称：insert_history
+    描述：该函数用于从文件中读取历史纪录
+    做成日期：18/09/06
+    参数：GtkTextBuffer *history_buffer
+    返回值：void
+    作者：方致远
+*/
 void insert_history(GtkTextBuffer *history_buffer)
 {
     char *home = getenv("HOME");
@@ -41,6 +53,14 @@ void insert_history(GtkTextBuffer *history_buffer)
     }
 }
 
+/* 
+    名称：create_history
+    描述：该函数用于建立显示聊天记录的窗口
+    做成日期：18/09/06
+    参数：void
+    返回值：void
+    作者：方致远
+*/
 void create_history()
 {
 	GtkWidget *win, *hbox, *text;

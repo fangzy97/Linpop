@@ -1,34 +1,21 @@
+/********************************************************************************
+ * Files         : personal_information.c.c
+ * Description   : 该模块为客户端提供储存用户信息的功能
+ ********************************************************************************/
 #include <gtk/gtk.h>
 #include<stdlib.h>
 #include "function.h"
 
 GtkWidget *entry1,*entry2,*entry3,*entry4,*spin1,*spin2,*spin3;
 
-char* getNumber(int num)
-{
-	char number[10], result[10];
-	int temp;
-
-	memset(number, 0, sizeof(number));
-	memset(result, 0, sizeof(result));
-
-	int a = 0;
-	while (num > 0)
-	{
-		temp = num % 10;
-		number[a++] = (char)(temp + '0');
-	}
-
-	int len = strlen(number);
-	for (int i = 0; i < len; i++)
-	{
-		result[i] = number[len - i];
-	}
-	
-	return result;
-}
-
-//函数声明
+/* 
+    名称：confirm_button_clicked
+    描述：用于处理点击确定键的事件
+    做成日期：18/09/06
+    参数：GtkWidget *button , gpointer userdata
+    返回值：void
+    作者：唐容川
+*/
 void confirm_button_clicked ( GtkWidget *button , gpointer userdata)
 {
 	strcpy(p_info.name, gtk_entry_get_text (entry1));
@@ -46,6 +33,14 @@ void confirm_button_clicked ( GtkWidget *button , gpointer userdata)
 	gtk_widget_destroy(userdata);
 }
 
+/* 
+    名称：personal_information_button_clicked
+    描述：用于启动用户信息界面
+    做成日期：18/09/06
+    参数：GtkWidget *button , gpointer userdata
+    返回值：void
+    作者：唐容川
+*/
 void personal_information_button_clicked ( GtkWidget *button , gpointer userdata)
 {
 	//声明窗口控制的指针

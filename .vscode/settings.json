@@ -4,6 +4,9 @@
         "main.h": "c",
         "errno.h": "c",
         "stdlib.h": "c",
-        "gtk.h": "c"
+        "gtk.h": "c",
+        "function.h": "c",
+        "server.h": "c",
+        "stdio.h": "c"
     }
 }

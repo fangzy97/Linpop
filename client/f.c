@@ -1,3 +1,8 @@
+/********************************************************************************
+ * Files         : f.c
+ * Description   : 该模块实现了文件存储的相关功能
+ ********************************************************************************/
+
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
@@ -9,6 +14,14 @@
 #define MAX_DIRPATH_LEN 512
 #define DEFAULT_DIRPATH "Hello world"
 
+/* 
+    名称：new_file
+    描述：该函数可在制定位置新建文件
+    做成日期：18/09/06
+    参数：char dirpath[512],char username[64],char str[2048]
+    返回值：void
+    作者：孙凡淑
+*/
 void new_file(char dirpath[512],char username[64],char str[2048])  
 {  
     //下面是写数据，将数字0~9写入到data.txt文件中  
@@ -34,6 +47,14 @@ void new_file(char dirpath[512],char username[64],char str[2048])
     fclose(fpWrite);  
 }  
 
+/* 
+    名称：new_folder
+    描述：该函数可在制定位置新建文件夹
+    做成日期：18/09/06
+    参数：char username[64],char str[2048]
+    返回值：void
+    作者：孙凡淑
+*/
 void new_folder(char username[64],char str[2048])
 {
 	char dirpath[MAX_DIRPATH_LEN];

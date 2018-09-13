@@ -1,10 +1,28 @@
-/* server.c */
+/********************************************************************************
+ * Files         : server.c
+ * Description   : 该模块用于将用户名和密码插入数据库
+ ********************************************************************************/
 #include "server.h"
 
 #define OURPORT 8088
 #define MAX_USERS 10 
 #define MAX_LEN 2048
+#include<mysql/mysql.h>
+MYSQL conn;
 
+void connection(const char* host, const char* user, const char* password, const char* database) {
+    mysql_init(&conn); // 注意取地址符&
+ 
+    if (mysql_real_connect(&conn, host, user, password, database, 0, NULL, 0)) {
+        printf("Connection success!\n");
+    } else {
+        fprintf(stderr, "Connection failed!\n");
+        if (mysql_errno(&conn)) {
+            fprintf(stderr, "Connection error %d: %s\n", mysql_errno(&conn), mysql_error(&conn));
+        }
+        exit(EXIT_FAILURE);
+    }
+}
 struct _client 
 {
 	gint sd;
@@ -32,6 +50,14 @@ void get_file(char* buf)
 	close(filefd);
 }
 
+/* 
+    名称：getTarget
+    描述：获取发送对象的相关通知
+    做成日期：18/09/06
+    参数：char* str
+    返回值：char*
+    作者：孙凡淑
+*/
 char* getTarget(char* str)
 {
 	char* result;
@@ -49,6 +75,14 @@ char* getTarget(char* str)
 	return result;
 }
 
+/* 
+    名称：getMessage
+    描述：在客户端法来的消息中获取有用消息
+    做成日期：18/09/06
+    参数：char* str
+    返回值：char*
+    作者：方致远
+*/
 char* getMessage(char* str)
 {
 	printf("get_message\n");
@@ -76,7 +110,14 @@ char* getMessage(char* str)
 	return result;
 }
 
-//定义服务线程
+/* 
+    名称：getMessage
+    描述：用于定义服务线程，开启多线程
+    做成日期：18/09/06
+    参数：gpointer id
+    返回值：void
+    作者：方致远
+*/
 void do_server(gpointer id)
 {
 	char mod;
@@ -278,31 +319,25 @@ int main(int argc, char* argv[])
 				getUserName(temp, count);
 				getPassword(temp, count);
 
+				// insert(user[count].name, user[count].password);
+                char comm[1024]="\0";
+                sprintf(comm,"insert into useronline values ('%s','%s');",user[count].name,user[count].password);
+                mysql_query(&conn,comm);
+
 				memset(login_sign, 0, sizeof(login_sign));
 				// flag = check(user[count].name, user[count].password);
 				// printf("%d\n", flag);
 
 				g_thread_new(user[count].name, (GThreadFunc)do_server, (gpointer)count);
 				count++;
-				// if (flag == 0)
-				// {
-				// 	strcpy(login_sign, "3:0");
-				// 	write(user[count].sd, login_sign, MAX_LEN);
-				// }
-				// else
-				// {
-				// 	strcpy(login_sign, "3:1");
-				// 	write(user[count].sd, login_sign, MAX_LEN);
-
-				// 	g_thread_new(user[count].name, (GThreadFunc)do_server, (gpointer)count);
-				// 	count++;
-				// }
 			}
 		}
 	}
 
 	close(sd);
 	g_free(sin);
+	mysql_close(&conn);
+    exit(EXIT_SUCCESS);
 
 	return 0;
 }

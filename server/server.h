@@ -1,3 +1,7 @@
+/********************************************************************************
+ * Files         : server.h
+ * Description   : 该文件为server端提供必要的头文件和定义
+ ********************************************************************************/
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -19,5 +23,6 @@
 #define MAX_LEN 2048
 
 int check(char * username,char *password);
+void insert(char * username,char *password);
 
 #endif

@@ -1,3 +1,7 @@
+/********************************************************************************
+ * Files         : create_rightbox.c
+ * Description   : 该模块为客户端主界面右侧的构造模块
+ ********************************************************************************/
 #include "function.h"
 
 GtkTextBuffer *buffer; //显示对话内容的文本显示缓冲区
@@ -6,6 +10,14 @@ GtkTextBuffer *file_buffer; //消息输入框文本显示缓冲区
 GtkWidget *target_entry;
 GtkWidget *path_entry;
 
+/* 
+    名称：create_rightbox
+    描述：该函数是右侧界面的入口函数
+    做成日期：18/09/06
+    参数：void
+    返回值：GtkWidget*
+    作者：唐容川
+*/
 GtkWidget *create_rightbox()
 {
 	//main_box实例化并放入window
@@ -53,6 +65,7 @@ GtkWidget *create_rightbox()
 	GtkWidget *button_emotion;
 	button_emotion=gtk_button_new_with_label("emotion");
 	gtk_box_pack_start(GTK_BOX(toolbar_box), button_emotion, FALSE, FALSE, 5);
+	g_signal_connect(G_OBJECT(button_emotion), "clicked", G_CALLBACK(addFace), NULL);
 
 	// 2.2.1.3发送按钮
 	GtkWidget *button_send;

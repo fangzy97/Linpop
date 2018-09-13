@@ -1,3 +1,8 @@
+/********************************************************************************
+ * Files         : function.h
+ * Description   : 该头文件整合了client所用的相关数据结构和函数声明
+ ********************************************************************************/
+
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
@@ -35,6 +40,7 @@ extern GtkTextBuffer *input_buffer;
 extern GtkTextBuffer *file_buffer;
 extern int isSet;
 extern struct info p_info;
+extern GtkWidget *main_window;
 
 void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs);
 void File_button_clicked (GtkWidget *button,gpointer userdata);
@@ -51,7 +57,9 @@ void new_folder(char username[],char str[]);
 void create_history();
 void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data);
 void login_stats (int stats);
+void addFace(GtkWidget *button, GtkTextBuffer *input_buffer1 /*, GtkTextBuffer *output_buffer2*/);
 
+GtkWidget *create_test_window();
 GtkWidget *create_leftbox();
 GtkWidget *create_rightbox();
 

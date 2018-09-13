@@ -1,4 +1,7 @@
-/* client.c */
+/********************************************************************************
+ * Files         : client.c
+ * Description   : 该模块为客户端主界面，所有功能围绕它展开
+ ********************************************************************************/
 #include "function.h"
 
 #define OURPORT 8088
@@ -12,7 +15,7 @@ gchar buf[MAX_LEN]; //写缓冲区
 gchar get_buf[MAX_LEN]; //读缓冲区
 gboolean isconnected = FALSE; //定义逻辑值表示是否连接
 
-static GtkWidget *main_window;
+GtkWidget *main_window;
 static GtkWidget *text;
 static GtkWidget *path_text;
 //static GtkTextBuffer *buffer; //显示对话内容的文本显示缓冲区
@@ -35,6 +38,14 @@ void sys_err(const char *ptr,int num)
     exit(num);
 }
 
+/* 
+    名称：on_okclicked
+    描述：该函数用于读取服务器发送的信息
+    做成日期：18/09/05
+    参数：gpointer data传入的需要操作的界面
+    返回值：void
+    作者：方致远
+*/
 void get_message(gpointer data)
 {
 	GtkTextIter iter;
@@ -91,6 +102,14 @@ void get_message(gpointer data)
 	}
 }
 
+/* 
+    名称：do_connect
+    描述：该函数用于读取服务器发送的信息
+    做成日期：18/09/05
+    参数：void
+    返回值：void
+    作者：方致远
+*/
 gboolean do_connect() //连接多人聊天服务器
 {
 	GtkTextIter iter;
@@ -151,6 +170,14 @@ void on_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 	gtk_widget_destroy(widget);
 }
 
+/* 
+    名称：on_button_clicked
+    描述：读取用户名和密码并尝试连接到服务器
+    做成日期：18/09/05
+    参数：GtkButton *button被点击按钮, gpointer data传输数据
+    返回值：void
+    作者：方致远
+*/
 void on_button_clicked(GtkButton *button, gpointer data)
 {
 	const gchar* name;
@@ -162,7 +189,7 @@ void on_button_clicked(GtkButton *button, gpointer data)
 	pw = gtk_entry_get_text(GTK_ENTRY(password_entry));
 	sprintf(password, "%s", pw);
 
-	if (strcmp(username, "123") != 0)
+	if (strcmp(username, "1") != 0 && strcmp(username, "2") != 0 && strcmp(username, "3") != 0)
 	{
 		login_stats(1);
 	}
@@ -291,6 +318,13 @@ void on_send_file_click()
 	}
 }
 
+void create_register()
+{
+	GtkWidget *register_win;
+	register_win = create_test_window();
+	gtk_widget_show_all(register_win);
+}
+
 void create_win(gpointer data)
 {
 	GtkWidget *win, *vbox, *hbox, *hbox1, *hbox2;
@@ -327,9 +361,18 @@ void create_win(gpointer data)
 	gtk_box_pack_start(GTK_BOX(hbox2), password_entry, TRUE, TRUE, 5);
 	gtk_entry_set_visibility(GTK_ENTRY(password_entry),FALSE);
 
+	GtkWidget *button_box;
+	button_box = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), button_box, TRUE, TRUE, 5);
+
 	button = gtk_button_new_from_stock(GTK_STOCK_OK);
 	g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_button_clicked), win);
-	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE,5);
+	gtk_box_pack_start(GTK_BOX(button_box), button, TRUE, TRUE,5);
+
+	GtkWidget *register_button;
+	register_button = gtk_button_new_with_label("register");
+	gtk_box_pack_start(GTK_BOX(button_box), register_button, TRUE, TRUE, 5);
+	g_signal_connect(G_OBJECT(register_button), "clicked", G_CALLBACK(create_register), NULL);
 
 	gtk_widget_show_all(win);
 	gtk_widget_destroy(data);
@@ -427,7 +470,9 @@ int create_main ()
 	hbox2=gtk_hbox_new(TRUE, 5);
 	hbox3=gtk_hbox_new(TRUE, 5);
 
-	button4= gtk_button_new_with_label("4");
+	button4= gtk_button_new_with_label("三角点格棋");
+	// g_signal_connect(G_OBJECT(button4),"clicked",G_CALLBACK(open_chess),NULL);
+
 	button5= gtk_button_new_with_label("5");
 	button6= gtk_button_new_with_label("6");
 

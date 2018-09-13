@@ -1,5 +1,17 @@
+/********************************************************************************
+ * Files         : filesel.c
+ * Description   : 该模块为客户端主界面左侧的构造模块
+ ********************************************************************************/
 #include "function.h"
 
+/* 
+    名称：on_file_select_ok
+    描述：该函数用于文件选择器的确定时间被触发时
+    做成日期：18/09/06
+    参数：GtkWidget *button, GtkFileSelection *fs
+    返回值：void
+    作者：唐容川
+*/
 void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs)
 {
     if (file_path != NULL)
@@ -45,6 +57,14 @@ void on_file_select_ok (GtkWidget *button, GtkFileSelection *fs)
     gtk_widget_destroy(dialog);
 }
 
+/* 
+    名称：File_button_clicked
+    描述：该函数用于文件选择器的确定时间被触发时
+    做成日期：18/09/06
+    参数：GtkWidget *button,gpointer userdata
+    返回值：void
+    作者：唐容川
+*/
 void File_button_clicked (GtkWidget *button,gpointer userdata)
 {
     GtkWidget* dialog ;
